@@ -30,15 +30,15 @@ def topological_sort(graph):
 def many(graph, s, t, red):
     order = topological_sort(graph)
     if order is None:
-        return "?!"  # Not a DAG, so the problem is hard here
+        return "?!"  
 
-    # best[v] = most red vertices on a path from s to v (-1 = not reached)
+   
     best = {v: -1 for v in graph}
     best[s] = 1 if s in red else 0
 
     for u in order:
         if best[u] == -1:
-            continue  # s cannot reach u, so skip it
+            continue 
         for v in graph[u]:
             gain = 1 if v in red else 0
             if best[u] + gain > best[v]:
