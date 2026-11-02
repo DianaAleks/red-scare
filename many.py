@@ -36,13 +36,7 @@ def many(graph, s, t, red):
     best = {v: -1 for v in graph}
     best[s] = 1 if s in red else 0
 
-    for u in order:
-        if best[u] == -1:
-            continue 
-        for v in graph[u]:
-            gain = 1 if v in red else 0
-            if best[u] + gain > best[v]:
-                best[v] = best[u] + gain
+    
 
     return best[t]
 
