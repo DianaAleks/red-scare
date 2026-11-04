@@ -41,14 +41,14 @@ def few(graph, s, t, red):
 
     return dist[t]
 def main():
-    if len(sys.argv) != 2:
-        print("How to use: python3 alternate.py red-scare_documents/data/<input_file_name>")
-        return
+    data_folder = Path("red-scare_documents\data")
 
-    filename = Path(sys.argv[1])
+    for filename in sorted(data_folder.iterdir()):
+        if filename.is_file() and not filename.name.startswith("README"):
+            graph, s, t, red = load_graph(filename)
+            min_red_path = few(graph, s, t, red)
+            print(f"{filename.name}: {min_red_path}")
 
-    graph, s, t, red = load_graph(filename)
-    min_red_path = few(graph, s, t, red)
-    print(min_red_path)
+
 if __name__ == "__main__":
     main()
