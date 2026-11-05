@@ -4,6 +4,8 @@ import sys
 from graph_loader import load_graph
 
 
+# Topological sort using Kahn's algorithm.
+# Adapted from Topological Sorting in Python, GeeksforGeeks(https://www.geeksforgeeks.org/python/python-program-for-topological-sorting/)
 def topological_sort(graph):
 
     in_degree = {v: 0 for v in graph}
@@ -27,6 +29,7 @@ def topological_sort(graph):
     return order
 
 
+
 def many(graph, s, t, red):
     order = topological_sort(graph)
     if order is None:
@@ -36,10 +39,15 @@ def many(graph, s, t, red):
     best = {v: -1 for v in graph}
     best[s] = 1 if s in red else 0
 
-    
+    for u in order:
+        if best[u] == -1:
+            continue 
+        for v in graph[u]:
+            gain = 1 if v in red else 0
+            if best[u] + gain > best[v]:
+                best[v] = best[u] + gain
 
     return best[t]
-
 
 def main():
     if len(sys.argv) != 2:
