@@ -47,9 +47,9 @@ grid-25-2 & 625 & True & 5 & ?! & -1 & N/A \\
 grid-50-0 & 2500 & False & 0 & ?! & 1249 & N/A \\
 grid-50-1 & 2500 & False & 0 & ?! & 521 & N/A \\
 grid-50-2 & 2500 & False & 11 & ?! & -1 & N/A \\
-increase-n500-1 & 500 & True & 2 & -1 & 1 & N/A \\
-increase-n500-2 & 500 & True & 1 & -1 & 1 & N/A \\
-increase-n500-3 & 500 & True & 1 & -1 & 1 & N/A \\
+increase-n500-1 & 500 & True & 2 & 16 & 1 & N/A \\
+increase-n500-2 & 500 & True & 1 & 17 & 1 & N/A \\
+increase-n500-3 & 500 & True & 1 & 16 & 1 & N/A \\
 rusty-1-2000 & 2000 & False & -1 & ?! & -1 & N/A \\
 rusty-1-2500 & 2500 & False & -1 & ?! & -1 & N/A \\
 rusty-1-3000 & 3000 & False & 0 & ?! & 14 & N/A \\
