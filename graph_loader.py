@@ -1,7 +1,7 @@
 
 
 def load_graph(filename):
-    with open(filename, "r", encoding="utf-8") as file:
+    with open(filename, "r") as file:
         n, m, r = map(int, file.readline().split())
         s, t = file.readline().split()
 
