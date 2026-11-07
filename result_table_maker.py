@@ -6,7 +6,7 @@ from alternate import alternate
 from few import few
 from many import many
 from none import none
-#from some import some
+from some import solve_some
 
 def main():
     data_folder = Path("red-scare_documents/data")
@@ -25,7 +25,7 @@ def main():
                         few_result = few(graph, s, t, red)
                         many_result = many(graph, s, t, red)
                         none_result = none(graph, s, t, red)
-                        some_result = "N/A"  # Need to implement!!!!
+                        some_result = solve_some(filename)
 
                         line = (
                             f"{filename.stem} & "
