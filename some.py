@@ -235,7 +235,7 @@ def solve_some(filename):
             raise ValueError("This directed graph has a cycle; the DAG method does not apply.")
         from_s = reachable(s, adjacency)
         to_t = reachable(t, reverse)
-        return any(v in red and v in from_s and v in to_t for v in red)
+       return bool(red & from_s & to_t)
 
     return solve_undirected(vertices, red, s, t, adjacency)
 
