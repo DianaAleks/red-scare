@@ -159,37 +159,82 @@ def undirected_blocks_and_articulations(vertices, adjacency):
 
     return blocks, articulations
 
-
 def solve_undirected(vertices, red, s, t, adjacency):
     """Decide whether an undirected simple s-t path contains a red vertex."""
     if s == t:
         return s in red
 
-    blocks, articulations = undirected_blocks_and_articulations(vertices, adjacency)
+    blocks, articulations = undirected_blocks_and_articulations(
+        vertices, adjacency
+    )
+
     block_count = len(blocks)
     articulation_list = list(articulations)
-    articulation_node = {v: block_count + i for i, v in enumerate(articulation_list)}
+
+    articulation_node = {
+        v: block_count + i
+        for i, v in enumerate(articulation_list)
+    }
 
     tree = [[] for _ in range(block_count + len(articulation_list))]
     vertex_block = {}
-    block_has_red_non_articulation = [False] * block_count
+    block_has_red_vertex = [False] * block_count
 
-   for v in block:
-    if v in articulations:
-        a_node = articulation_node[v]
-        tree[block_id].append(a_node)
-        tree[a_node].append(block_id)
-    else:
-        vertex_block[v] = block_id
-        if v in red:
-            block_has_red_non_articulation[block_id] = True
-            
+    # Build the block-cut forest.
+    for block_id, block in enumerate(blocks):
+        for v in block:
             if v in articulations:
                 a_node = articulation_node[v]
                 tree[block_id].append(a_node)
                 tree[a_node].append(block_id)
             else:
                 vertex_block[v] = block_id
+
+            if v in red:
+                block_has_red_vertex[block_id] = True
+
+    # Find the block-cut-tree node representing a vertex.
+    def anchor(v):
+        if v in articulations:
+            return articulation_node[v]
+        return vertex_block.get(v)
+
+    start_node = anchor(s)
+    end_node = anchor(t)
+
+    if start_node is None or end_node is None:
+        return False
+
+    # Find the unique route between s and t.
+    parent_node = {start_node: -1}
+    stack = [start_node]
+
+    while stack and end_node not in parent_node:
+        u = stack.pop()
+
+        for v in tree[u]:
+            if v not in parent_node:
+                parent_node[v] = u
+                stack.append(v)
+
+    if end_node not in parent_node:
+        return False
+
+    # Check whether the route contains a red vertex.
+    node = end_node
+
+    while node != -1:
+        if node < block_count:
+            if block_has_red_vertex[node]:
+                return True
+        else:
+            original_vertex = articulation_list[node - block_count]
+            if original_vertex in red:
+                return True
+
+        node = parent_node[node]
+
+    return False
 
     def anchor(v):
         if v in articulations:
