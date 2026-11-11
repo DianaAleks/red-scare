@@ -174,11 +174,16 @@ def solve_undirected(vertices, red, s, t, adjacency):
     vertex_block = {}
     block_has_red_non_articulation = [False] * block_count
 
-    for block_id, block in enumerate(blocks):
-         for v in block:
-            if v in red:
-                block_has_red_non_articulation[block_id] = True
-
+   for v in block:
+    if v in articulations:
+        a_node = articulation_node[v]
+        tree[block_id].append(a_node)
+        tree[a_node].append(block_id)
+    else:
+        vertex_block[v] = block_id
+        if v in red:
+            block_has_red_non_articulation[block_id] = True
+            
             if v in articulations:
                 a_node = articulation_node[v]
                 tree[block_id].append(a_node)
