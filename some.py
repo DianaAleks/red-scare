@@ -236,43 +236,6 @@ def solve_undirected(vertices, red, s, t, adjacency):
 
     return False
 
-    def anchor(v):
-        if v in articulations:
-            return articulation_node[v]
-        return vertex_block.get(v)
-
-    start_node = anchor(s)
-    end_node = anchor(t)
-    if start_node is None or end_node is None:
-        return False
-
-    parent_node = {start_node: -1}
-    stack = [start_node]
-    while stack and end_node not in parent_node:
-        u = stack.pop()
-        for v in tree[u]:
-            if v not in parent_node:
-                parent_node[v] = u
-                stack.append(v)
-
-    if end_node not in parent_node:
-        return False
-
-    # Only nodes on the unique block-cut-tree route from s to t can matter.
-    node = end_node
-    while node != -1:
-        if node < block_count:
-            if block_has_red_non_articulation[node]:
-                return True
-        else:
-            original_vertex = articulation_list[node - block_count]
-            if original_vertex in red:
-                return True
-        node = parent_node[node]
-
-    return False
-
-
 def solve_some(filename):
     vertices, red, s, t, adjacency, reverse, directed = read_graph(filename)
 
@@ -286,7 +249,7 @@ def solve_some(filename):
             raise ValueError("This directed graph has a cycle; the DAG method does not apply.")
         from_s = reachable(s, adjacency)
         to_t = reachable(t, reverse)
-       return bool(red & from_s & to_t)
+        return bool(red & from_s & to_t)
 
     return solve_undirected(vertices, red, s, t, adjacency)
 
