@@ -1,7 +1,5 @@
-
 from collections import deque
 import sys
-from pathlib import Path
 from graph_loader import load_graph
 
 
@@ -46,159 +44,184 @@ def directed_some(graph, s, t, red):
         for v in graph[u]:
             reverse[v].append(u)
 
-    # Find vertices reachable from s.
     from_s = set()
     queue = deque([s])
     from_s.add(s)
 
     while queue:
         u = queue.popleft()
+
         for v in graph[u]:
             if v not in from_s:
                 from_s.add(v)
                 queue.append(v)
 
-    # Find vertices that can reach t.
     to_t = set()
     queue = deque([t])
     to_t.add(t)
 
     while queue:
         u = queue.popleft()
+
         for v in reverse[u]:
             if v not in to_t:
                 to_t.add(v)
                 queue.append(v)
 
-    # A red vertex must be reachable from s and able to reach t.
     return len(red & from_s & to_t) > 0
 
 
 def undirected_some(graph, s, t, red):
-    # Find the biconnected components using DFS.
-    discovery = {}
+    disc = {}
     low = {}
     parent = {}
-    articulation = set()
     edge_stack = []
     blocks = []
     time = 0
 
-    def dfs(u):
-        nonlocal time
+    # Iterative DFS to find biconnected components
+    for root in graph:
+        if root in disc:
+            continue
+
+        if not graph[root]:
+            disc[root] = time
+            low[root] = time
+            time += 1
+            blocks.append({root})
+            continue
+
+        disc[root] = time
+        low[root] = time
         time += 1
-        discovery[u] = time
-        low[u] = time
-        children = 0
+        parent[root] = None
 
-        for v in graph[u]:
-            if v not in discovery:
-                parent[v] = u
-                children += 1
-                edge_stack.append((u, v))
+        stack = [(root, iter(graph[root]))]
 
-                dfs(v)
-                low[u] = min(low[u], low[v])
+        while stack:
+            u, neighbours = stack[-1]
 
-                if parent[u] is not None and low[v] >= discovery[u]:
-                    articulation.add(u)
+            try:
+                v = next(neighbours)
 
-                if low[v] >= discovery[u]:
-                    block = set()
+                if v not in disc:
+                    parent[v] = u
+                    edge_stack.append((u, v))
 
-                    while edge_stack:
-                        edge = edge_stack.pop()
-                        block.update(edge)
+                    disc[v] = time
+                    low[v] = time
+                    time += 1
 
-                        if edge == (u, v):
-                            break
+                    stack.append((v, iter(graph[v])))
 
-                    blocks.append(block)
+                elif v != parent[u] and disc[v] < disc[u]:
+                    low[u] = min(low[u], disc[v])
+                    edge_stack.append((u, v))
 
-            elif v != parent[u] and discovery[v] < discovery[u]:
-                low[u] = min(low[u], discovery[v])
-                edge_stack.append((u, v))
+            except StopIteration:
+                stack.pop()
 
-        if parent[u] is None and children > 1:
-            articulation.add(u)
+                p = parent[u]
 
-    # Run DFS in every connected component.
+                if p is not None:
+                    low[p] = min(low[p], low[u])
+
+                    if low[u] >= disc[p]:
+                        block = set()
+
+                        while edge_stack:
+                            a, b = edge_stack.pop()
+                            block.add(a)
+                            block.add(b)
+
+                            if (a == p and b == u) or (a == u and b == p):
+                                break
+
+                        if block:
+                            blocks.append(block)
+
+    # Find which blocks contain each vertex
+    belongs = {v: [] for v in graph}
+
+    for i, block in enumerate(blocks):
+        for v in block:
+            belongs[v].append(i)
+
+    # Articulation vertices belong to more than one block
+    articulation = set()
     for v in graph:
-        if v not in discovery:
-            parent[v] = None
-            dfs(v)
+        if len(belongs[v]) > 1:
+            articulation.add(v)
 
-    # Include isolated vertices.
-    vertices_in_blocks = set()
-    for block in blocks:
-        vertices_in_blocks.update(block)
-
-    for v in graph:
-        if v not in vertices_in_blocks:
-            blocks.append({v})
-
-    # Build the block-cut tree.
+    # Build the block-cut tree
     tree = {}
-    block_of_vertex = {}
+    block_nodes = []
+
+    for i in range(len(blocks)):
+        node = ("B", i)
+        tree[node] = []
+        block_nodes.append(node)
+
+    for v in articulation:
+        tree[("A", v)] = []
 
     for i, block in enumerate(blocks):
         block_node = ("B", i)
-        tree[block_node] = []
 
         for v in block:
             if v in articulation:
                 art_node = ("A", v)
-
-                if art_node not in tree:
-                    tree[art_node] = []
-
                 tree[block_node].append(art_node)
                 tree[art_node].append(block_node)
-            else:
-                block_of_vertex[v] = block_node
 
-    # Find the tree node for s and t.
-    if s in articulation:
-        start = ("A", s)
-    else:
-        start = block_of_vertex[s]
+    # Find the tree node for the start and end vertices
+    def find_node(v):
+        if v in articulation:
+            return ("A", v)
+        if belongs[v]:
+            return ("B", belongs[v][0])
+        return None
 
-    if t in articulation:
-        target = ("A", t)
-    else:
-        target = block_of_vertex[t]
+    start = find_node(s)
+    end = find_node(t)
 
-    # Find the unique path in the block-cut tree.
-    previous = {start: None}
-    queue = deque([start])
-
-    while queue:
-        current = queue.popleft()
-
-        if current == target:
-            break
-
-        for neighbour in tree[current]:
-            if neighbour not in previous:
-                previous[neighbour] = current
-                queue.append(neighbour)
-
-    if target not in previous:
+    if start is None or end is None:
         return False
 
-    # Check the blocks and articulation vertices on that path.
-    current = target
+    # Find the unique route in the block-cut tree
+    queue = deque([start])
+    previous = {start: None}
+
+    while queue:
+        u = queue.popleft()
+
+        if u == end:
+            break
+
+        for v in tree[u]:
+            if v not in previous:
+                previous[v] = u
+                queue.append(v)
+
+    if end not in previous:
+        return False
+
+    route = []
+    current = end
 
     while current is not None:
-        if current[0] == "A":
-            if current[1] in red:
+        route.append(current)
+        current = previous[current]
+
+    # Check red vertices on the route
+    for node in route:
+        if node[0] == "A":
+            if node[1] in red:
                 return True
         else:
-            block = blocks[current[1]]
+            block = blocks[node[1]]
             if block & red:
                 return True
-
-        current = previous[current]
 
     return False
 
@@ -221,11 +244,13 @@ def main():
         print("Usage: python some_new.py <input-file>")
         return
 
-    filename = Path(sys.argv[1])
-    graph, s, t, red = load_graph(filename)
-
+    graph, s, t, red = load_graph(sys.argv[1])
     print(some(graph, s, t, red))
 
 
 if __name__ == "__main__":
     main()
+
+
+   
+    
