@@ -29,25 +29,41 @@ def topological_sort(graph):
     return order
 
 
+def reachable(graph, s):
+    seen = {s}
+    queue = deque([s])
+    while queue:
+        u = queue.popleft()
+        for v in graph[u]:
+            if v not in seen:
+                seen.add(v)
+                queue.append(v)
+    return seen
+
 
 def many(graph, s, t, red):
     order = topological_sort(graph)
+    #when there's no path from s to t
+    if t not in reachable(graph, s):
+        return -1  
+    #when the graph is not DAG(hard problem)
     if order is None:
-        return "?!"  
+        return "?!"
 
-   
+    # most number of vertices
     best = {v: -1 for v in graph}
     best[s] = 1 if s in red else 0
 
     for u in order:
         if best[u] == -1:
-            continue 
+            continue
         for v in graph[u]:
             gain = 1 if v in red else 0
             if best[u] + gain > best[v]:
                 best[v] = best[u] + gain
 
     return best[t]
+
 
 def main():
     if len(sys.argv) != 2:
