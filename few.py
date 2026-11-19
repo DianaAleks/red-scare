@@ -42,7 +42,6 @@ def few(graph, s, t, red):
     return dist[t]
 def main():
     data_folder = Path("red-scare_documents\data")
-
     for filename in sorted(data_folder.iterdir()):
         if filename.is_file() and not filename.name.startswith("README"):
             graph, s, t, red = load_graph(filename)
