@@ -2,6 +2,7 @@ from collections import deque
 from graph_loader import load_graph
 import sys
 
+
 def reachable(graph, start):
     visited = {start}
     queue = deque([start])
@@ -100,6 +101,24 @@ def solve_undirected(graph, s, t, red):
 
 
 def some(graph, s, t, red, directed):
+
+    from_s = reachable(graph, s)
+
+    if t not in from_s:
+        return False
+
+    if s == t:
+        return s in red
+
+    if s in red or t in red:
+        return True
+
+    if not red:
+        return False
+
+    if all(v in red for v in graph):
+        return True
+
     if directed:
         return solve_directed(graph, s, t, red)
 
