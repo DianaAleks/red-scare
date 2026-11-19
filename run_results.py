@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 folder = Path(__file__).parent
-program = folder / "some.py"
+program = folder / "some_new.py"
 
 data_folders = list(folder.rglob("data"))
 
