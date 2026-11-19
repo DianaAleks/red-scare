@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/KamelijaBranch
 def load_graph(filename):
     with open(filename, "r") as file:
         n, m, r = map(int, file.readline().split())
@@ -33,8 +29,4 @@ def load_graph(filename):
             if direction == "--":
                 graph[v].append(u)
 
-<<<<<<< HEAD
-    return graph, s, t, red_vertices
-=======
         return graph, s, t, red_vertices, directed
->>>>>>> origin/KamelijaBranch

@@ -6,7 +6,7 @@ from alternate import alternate
 from few import few
 from many import many
 from none import none
-from some import solve_some
+from some import some
 
 def main():
     data_folder = Path("red-scare_documents/data")
@@ -19,13 +19,13 @@ def main():
                         first_number = int(first_line.split()[0])
 
                     if first_number >= 500:
-                        graph, s, t, red = load_graph(filename)
+                        graph, s, t, red, directed = load_graph(filename)
 
                         alternate_result = alternate(graph, s, t, red)
                         few_result = few(graph, s, t, red)
                         many_result = many(graph, s, t, red)
                         none_result = none(graph, s, t, red)
-                        some_result = solve_some(filename)
+                        some_result = some(graph, s, t, red, directed)
 
                         line = (
                             f"{filename.stem} & "

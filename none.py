@@ -20,11 +20,11 @@ def none(neighbours,s,t,red):
     else:
         return(-1)
 
-def main():
+if __name__ == "__main__":
     data = ('red-scare_documents/data/')
     for file in os.listdir(data):
         if file.endswith(".txt"):
             neighbours,s,t,red = load_graph(data+file)
             print(file, none(neighbours,s,t,red))
 
-main()
+
